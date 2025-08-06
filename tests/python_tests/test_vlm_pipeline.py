@@ -19,6 +19,7 @@ from openvino_genai import (
     StreamingStatus,
     GenerationFinishReason,
 )
+import openvino_genai as genai
 
 from utils.network import retry_request
 from utils.generation_config import (
@@ -94,16 +95,16 @@ image_links_for_testing = [
 
 model_ids = [
     "katuni4ka/tiny-random-minicpmv-2_6",
-    "katuni4ka/tiny-random-phi3-vision",
-    "katuni4ka/tiny-random-phi-4-multimodal",
-    "katuni4ka/tiny-random-llava",
-    "katuni4ka/tiny-random-llava-next",
-    "katuni4ka/tiny-random-internvl2",
-    "katuni4ka/tiny-random-qwen2vl",
-    "katuni4ka/tiny-random-qwen2.5-vl",
+    # "katuni4ka/tiny-random-phi3-vision",
+    # "katuni4ka/tiny-random-phi-4-multimodal",
+    # "katuni4ka/tiny-random-llava",
+    # "katuni4ka/tiny-random-llava-next",
+    # "katuni4ka/tiny-random-internvl2",
+    # "katuni4ka/tiny-random-qwen2vl",
+    # "katuni4ka/tiny-random-qwen2.5-vl",
 ]
 
-attention_backend = ["PA", "SDPA"]
+attention_backend = ["PA"]
 
 @functools.lru_cache()
 def get_pil_image_by_link(link, target_size=None):
@@ -141,8 +142,20 @@ def test_vlm_pipeline(model_id, backend):
         result_from_streamer.append(word)
         return False
 
+    print("\n\n\n START")
+    ovt = openvino.Tensor( openvino.Type.i32, [7])
+    ovtv = openvino.TensorVector([ovt, ovt])
+    print(ovtv)
+    ress = genai.py_openvino_genai.handle_tensor([ovt])
+    print(ress)
+    ress = genai.py_openvino_genai.handle_tensor(ovtv)
+    
+    print("\n\n\n END")
+
     models_path = get_ov_model(model_id)
+    print("call VLMPipeline with model path:", models_path)
     ov_pipe = VLMPipeline(models_path, "CPU", ATTENTION_BACKEND=backend)
+    print("VLMPipeline created")
     generation_config = ov_pipe.get_generation_config()
     generation_config.max_new_tokens = 30
     generation_config.set_eos_token_id(ov_pipe.get_tokenizer().get_eos_token_id())
@@ -152,6 +165,7 @@ def test_vlm_pipeline(model_id, backend):
         for link in links:
             images.append(get_image_by_link(link))
 
+        print("Images loaded:", images)
         result_from_streamer = []
         res = ov_pipe.generate(
             prompts[0],

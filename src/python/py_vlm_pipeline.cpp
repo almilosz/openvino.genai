@@ -223,6 +223,7 @@ void init_vlm_pipeline(py::module_& m) {
                 const pyutils::PyBindStreamerVariant& streamer,
                 const py::kwargs& kwargs
             ) -> py::typing::Union<ov::genai::VLMDecodedResults> {
+                std::cout<< "call VLM generate with prompt: " << prompt << std::endl;
                 return call_vlm_generate(pipe, prompt, images, generation_config, streamer, kwargs);
             },
             py::arg("prompt"), "Input string",

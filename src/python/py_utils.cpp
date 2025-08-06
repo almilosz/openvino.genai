@@ -178,6 +178,7 @@ ov::Any py_object_to_any(const py::object& py_obj, std::string property_name) {
             case PY_TYPE::PARTIAL_SHAPE:
                 return _list.cast<std::vector<ov::PartialShape>>();
             case PY_TYPE::TENSOR:
+                std::cout << " PY_TYPE TENSOR" << std::endl;
                 return _list.cast<std::vector<ov::Tensor>>();
             default:
                 OPENVINO_THROW("Property \"" + property_name + "\" got unsupported type.");
@@ -258,6 +259,7 @@ ov::Any py_object_to_any(const py::object& py_obj, std::string property_name) {
         case PY_TYPE::BOOL:
             return _set.cast<std::set<bool>>();
         default:
+            std::cout<<"DEFAULT PY UTILS SET" << std::endl;
             OPENVINO_THROW("Property \"" + property_name + "\" got unsupported type.");
         }
 

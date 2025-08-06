@@ -109,6 +109,12 @@ PYBIND11_MODULE(py_openvino_genai, m) {
         .def_readonly("perf_metrics", &EncodedResults::perf_metrics)
         .def_readonly("extended_perf_metrics", &EncodedResults::extended_perf_metrics);
 
+    // py::bind_vector<ov::TensorVector>(m, "TensorVector");
+    m.def("handle_tensor", [](const std::vector<ov::Tensor>& tensors) -> py::str {
+        std::cout << "HANDLED TENSOR LIST" << std::endl;
+        return "OK";
+    }, "func");
+
     init_lora_adapter(m);
     init_generation_config(m);
     init_tokenizer(m);
